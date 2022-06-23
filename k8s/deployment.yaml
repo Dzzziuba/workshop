@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuard
+  labels:
+    app: kuard
+spec:
+  selector:
+    matchLabels:
+      app: kuard
+  replicas: 3
+  revisionHistoryLimit: 7
+  progressDeadlineSeconds: 800
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      name: kuard-pod
+      labels:
+        app: kuard
+    spec:
+      containers:
+        - name: demo-pod
+          envFrom:
+            - configMapRef:
+                name: kuard-config
+          image: gcr.io/kuar-demo/kuard-amd64:1
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /healthy
+            timeoutSeconds: 1
+            periodSeconds: 10
+            failureThreshold: 3
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
