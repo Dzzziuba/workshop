@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kuard
+  name: workshop
   labels:
-    app: kuard
+    app: workshop
 spec:
   selector:
     matchLabels:
-      app: kuard
+      app: workshop
   replicas: 3
   revisionHistoryLimit: 7
   progressDeadlineSeconds: 800
@@ -15,22 +15,46 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      name: kuard-pod
+      name: workshop
       labels:
-        app: kuard
+        app: workshop
     spec:
+#     Define volume with secrets value
+      volumes:
+        - name: workshop-secret
+          secret:
+            secretName: workshop-credentials-secret
       containers:
-        - name: demo-pod
+        - name: workshop
+#         Grab properties from configmap
           envFrom:
             - configMapRef:
-                name: kuard-config
-          image: gcr.io/kuar-demo/kuard-amd64:1
+                name: workshop-configmap
+#         Mount volume to container
+          volumeMounts:
+            - mountPath: /secret/app
+              name: workshop-secret
+          image: workshop_1:1
+#         Declare ports (optional)
+          ports:
+            - containerPort: 8080
+              name: main
+#         Declare resource to avoid BestEffort mode
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 600m
+              memory: 512Mi
+#         Configure liveness probe
           livenessProbe:
             httpGet:
-              port: 8080
-              path: /healthy
+              port: main
+              path: /management/health
             timeoutSeconds: 1
             periodSeconds: 10
             failureThreshold: 3
           imagePullPolicy: IfNotPresent
+      priorityClassName: high-priority # main service of a pod
       restartPolicy: Always
