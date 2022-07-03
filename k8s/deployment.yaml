@@ -8,7 +8,7 @@ spec:
   selector:
     matchLabels:
       app: workshop
-  replicas: 3
+  replicas: 2
   revisionHistoryLimit: 7
   progressDeadlineSeconds: 800
   strategy:
@@ -18,6 +18,7 @@ spec:
       name: workshop
       labels:
         app: workshop
+        techstack: spring-boot
     spec:
 #     Define volume with secrets value
       volumes:
@@ -34,7 +35,7 @@ spec:
           volumeMounts:
             - mountPath: /secret/app
               name: workshop-secret
-          image: workshop_1:1
+          image: workshop:6
 #         Declare ports (optional)
           ports:
             - containerPort: 8080
@@ -45,16 +46,16 @@ spec:
               cpu: 100m
               memory: 128Mi
             limits:
-              cpu: 600m
+              cpu: 500m
               memory: 512Mi
 #         Configure liveness probe
           livenessProbe:
             httpGet:
               port: main
               path: /management/health
-            timeoutSeconds: 1
+            timeoutSeconds: 3
             periodSeconds: 10
-            failureThreshold: 3
+            failureThreshold: 5
           imagePullPolicy: IfNotPresent
       priorityClassName: high-priority # main service of a pod
       restartPolicy: Always

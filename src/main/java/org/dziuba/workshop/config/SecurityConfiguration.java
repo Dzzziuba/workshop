@@ -17,7 +17,7 @@ public class SecurityConfiguration {
                                 .antMatchers("/management/health").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .formLogin(withDefaults());
+                .httpBasic(withDefaults());
         return http.build();
     }
 

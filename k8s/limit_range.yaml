@@ -14,5 +14,5 @@ spec:
         cpu: 300m
         memory: 256Mi
       max:
-        cpu: 500m
+        cpu: 600m
         memory: 512Mi
